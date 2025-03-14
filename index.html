@@ -65,6 +65,7 @@
             <button class="btn" onclick="startTest(30)">30 Seconds</button>
             <button class="btn" onclick="startTest(60)">60 Seconds</button>
             <button class="btn" onclick="startTest(100)">100 Seconds</button>
+            <button class="btn" onclick="startTest(600)">10 Minutes</button>
         </div>
     </div>
     
@@ -80,6 +81,7 @@
         let timeLeft = 0;
         let timer;
         let gameActive = false;
+        let originalTitle = document.title;
 
         function startTest(seconds) {
             clearInterval(timer); // Clear existing timer
@@ -88,13 +90,16 @@
             document.getElementById("clickCount").innerText = clickCount;
             timeLeft = seconds;
             document.getElementById("timeLeft").innerText = timeLeft;
+            document.title = originalTitle;
             
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById("timeLeft").innerText = timeLeft;
+                updateTitle();
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     gameActive = false;
+                    document.title = originalTitle;
                     alert("Time's up! You made " + clickCount + " clicks.");
                 }
             }, 1000);
@@ -105,6 +110,16 @@
             clickCount++;
             document.getElementById("clickCount").innerText = clickCount;
         }
+
+        function updateTitle() {
+            if (document.hidden && gameActive) {
+                document.title = `Time Left: ${timeLeft} sec`;
+            } else {
+                document.title = originalTitle;
+            }
+        }
+
+        document.addEventListener("visibilitychange", updateTitle);
     </script>
 </body>
 </html>
