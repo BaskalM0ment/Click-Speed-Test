@@ -18,6 +18,9 @@
             height: 100vh;
             position: relative;
         }
+        .top-section, .bottom-info, #clickArea {
+            transition: opacity 0.3s;
+        }
         .top-section {
             position: absolute;
             top: 20px;
@@ -54,11 +57,33 @@
             text-align: center;
             width: 100%;
         }
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup {
+            background: black;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <div class="top-section">
-        <h1>Click Speed Test</h1>
+    <div class="top-section" id="topSection">
+        <h1>The Most Simplest Click Speed Test</h1>
         <div class="button-container">
             <button class="btn" onclick="startTest(5)">5 Seconds</button>
             <button class="btn" onclick="startTest(10)">10 Seconds</button>
@@ -71,9 +96,16 @@
     
     <div id="clickArea" onclick="countClick()">Click Me!</div>
     
-    <div class="bottom-info">
+    <div class="bottom-info" id="bottomInfo">
         <h2>Clicks: <span id="clickCount">0</span></h2>
         <h2>Time Left: <span id="timeLeft">0</span> sec</h2>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup()">
+        <div class="popup" onclick="event.stopPropagation()">
+            <h1 id="finalScore"></h1>
+            <p>Challenge friends to beat your score!</p>
+        </div>
     </div>
 
     <script>
@@ -84,13 +116,17 @@
         let originalTitle = document.title;
 
         function startTest(seconds) {
-            clearInterval(timer); // Clear existing timer
+            clearInterval(timer);
             gameActive = true;
             clickCount = 0;
             document.getElementById("clickCount").innerText = clickCount;
             timeLeft = seconds;
             document.getElementById("timeLeft").innerText = timeLeft;
             document.title = originalTitle;
+            document.getElementById("popupOverlay").style.display = "none";
+            document.getElementById("topSection").classList.remove("hidden");
+            document.getElementById("bottomInfo").classList.remove("hidden");
+            document.getElementById("clickArea").classList.remove("hidden");
             
             timer = setInterval(() => {
                 timeLeft--;
@@ -100,7 +136,7 @@
                     clearInterval(timer);
                     gameActive = false;
                     document.title = originalTitle;
-                    alert("Time's up! You made " + clickCount + " clicks.");
+                    showPopup();
                 }
             }, 1000);
         }
@@ -119,7 +155,27 @@
             }
         }
 
+        function showPopup() {
+            document.getElementById("finalScore").innerText = `You made ${clickCount} clicks!`;
+            document.getElementById("popupOverlay").style.display = "flex";
+            document.getElementById("topSection").classList.add("hidden");
+            document.getElementById("bottomInfo").classList.add("hidden");
+            document.getElementById("clickArea").classList.add("hidden");
+        }
+
+        function closePopup() {
+            document.getElementById("popupOverlay").style.display = "none";
+            document.getElementById("topSection").classList.remove("hidden");
+            document.getElementById("bottomInfo").classList.remove("hidden");
+            document.getElementById("clickArea").classList.remove("hidden");
+        }
+
         document.addEventListener("visibilitychange", updateTitle);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                closePopup();
+            }
+        });
     </script>
 </body>
 </html>
